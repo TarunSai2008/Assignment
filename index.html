@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmony Soundboard | Playful Audio Experience</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0c2461, #1e3799, #4a69bd);
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%23ffffff" opacity="0.03" d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm48 25a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm-43-7a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm63 31a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM34 90a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm56-76a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 86a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm60-60a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"></path></svg>');
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff9ff3, #74b9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        .api-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .api-badge i {
+            color: #ff9ff3;
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .soundboard-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+        }
+
+        .controls-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .soundboard-title, .controls-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #74b9ff;
+        }
+
+        .soundboard-title i, .controls-title i {
+            font-size: 1.5rem;
+        }
+
+        .soundboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .soundboard {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .sound-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            min-height: 180px;
+        }
+
+        .sound-btn:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .sound-btn:active {
+            transform: translateY(-5px);
+        }
+
+        .sound-btn.playing {
+            background: rgba(116, 185, 255, 0.25);
+            border-color: rgba(116, 185, 255, 0.5);
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .sound-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ff9ff3;
+            transition: transform 0.3s ease;
+        }
+
+        .sound-btn:hover .sound-icon {
+            transform: scale(1.2);
+        }
+
+        .sound-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .sound-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .volume-control {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .volume-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .volume-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #74b9ff;
+        }
+
+        .slider-container {
+            width: 100%;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ff9ff3;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 159, 243, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #ff7fe6;
+            transform: scale(1.1);
+        }
+
+        .mute-control {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .mute-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.1rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .mute-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .mute-btn.active {
+            background: rgba(255, 99, 99, 0.3);
+            border-color: rgba(255, 99, 99, 0.5);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 40px;
+            max-width: 800px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instructions h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ff9ff3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .feature {
+            background: rgba(116, 185, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            opacity: 0.7;
+            font-size: 0.9rem;
+            width: 100%;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sound-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .soundboard, .controls-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="api-badge">
+                <i class="fas fa-code"></i>
+                <span>Web API: new Audio()</span>
+            </div>
+            <h1>Harmony Soundboard</h1>
+            <p class="subtitle">A playful, elegant audio experience. Click on any sound button to play it. Adjust volume with the slider or mute all sounds with one click. Perfect for fun, reactions, or simply enjoying delightful sounds.</p>
+        </header>
+
+        <div class="content">
+            <section class="soundboard-section">
+                <h2 class="soundboard-title"><i class="fas fa-music"></i> Sound Library</h2>
+                <div class="soundboard" id="soundboard">
+                    <!-- Sound buttons will be generated by JavaScript -->
+                </div>
+            </section>
+
+            <section class="controls-section">
+                <h2 class="controls-title"><i class="fas fa-sliders-h"></i> Audio Controls</h2>
+                
+                <div class="volume-control">
+                    <div class="volume-header">
+                        <span><i class="fas fa-volume-up"></i> Master Volume</span>
+                        <span class="volume-value" id="volumeValue">70%</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" min="0" max="100" value="70" class="slider" id="volumeSlider">
+                    </div>
+                </div>
+
+                <div class="mute-control">
+                    <p>Instantly silence all sounds with the mute button</p>
+                    <button class="mute-btn" id="muteBtn">
+                        <i class="fas fa-volume-mute"></i>
+                        <span>Mute All Sounds</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div class="instructions">
+            <h3><i class="fas fa-graduation-cap"></i> What You'll Learn</h3>
+            <p>This simple soundboard demonstrates key web development concepts using the Web Audio API. It's an excellent project for learning:</p>
+            <div class="feature-list">
+                <div class="feature"><i class="fas fa-volume-up"></i> Audio API Basics</div>
+                <div class="feature"><i class="fas fa-mouse-pointer"></i> Event Listeners</div>
+                <div class="feature"><i class="fas fa-th"></i> DOM Structure & Grid Layout</div>
+                <div class="feature"><i class="fas fa-code"></i> JavaScript Interactivity</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Simple Soundboard &copy; 2023 | Created with <i class="fas fa-heart" style="color:#ff9ff3;"></i> for learning the Web Audio API</p>
+            <p style="font-size:0.8rem; margin-top:5px;">Click any sound button to play. Adjust volume with the slider. Have fun!</p>
+        </footer>
+    </div>
+
+    <script>
+        // Sound data - name, description, icon, and audio file
+        const sounds = [
+            {
+                name: "Dog Bark",
+                description: "A friendly dog greeting",
+                icon: "fas fa-dog",
+                audio: "dog.mp3"
+            },
+            {
+                name: "Clap",
+                description: "Applause and celebration",
+                icon: "fas fa-hands-clapping",
+                audio: "clap.mp3"
+            },
+            {
+                name: "Pop",
+                description: "Bubble pop sound effect",
+                icon: "fas fa-burst",
+                audio: "bubble.mp3"
+            },
+            {
+                name: "Laugh",
+                description: "Joyful laughter",
+                icon: "fas fa-face-laugh",
+                audio: "laugh.mp3"
+            },
+            {
+                name: "Bell",
+                description: "Clear notification bell",
+                icon: "fas fa-bell",
+                audio: "bell.mp3"
+            },
+            {
+                name: "Chime",
+                description: "Magical fairy chime",
+                icon: "fas fa-wand-magic-sparkles",
+                audio: "magic.mp3"
+            }
+        ];
+
+        // Global variables
+        let currentAudio = null;
+        let isMuted = false;
+        let volume = 0.7;
+        let activeButton = null;
+
+        // DOM elements
+        const soundboard = document.getElementById('soundboard');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const muteBtn = document.getElementById('muteBtn');
+
+        // Initialize the soundboard
+        function initSoundboard() {
+            // Create sound buttons
+            sounds.forEach((sound, index) => {
+                const button = document.createElement('div');
+                button.className = 'sound-btn';
+                button.innerHTML = `
+                    <i class="${sound.icon} sound-icon"></i>
+                    <div class="sound-name">${sound.name}</div>
+                    <div class="sound-desc">${sound.description}</div>
+                `;
+                
+                // Add click event to play sound
+                button.addEventListener('click', () => playSound(sound.audio, button));
+                
+                // Add ripple effect on click
+                button.addEventListener('click', createRipple);
+                
+                soundboard.appendChild(button);
+            });
+
+            // Set up volume slider
+            volumeSlider.addEventListener('input', updateVolume);
+
+            // Set up mute button
+            muteBtn.addEventListener('click', toggleMute);
+        }
+
+        // Play sound function
+        function playSound(audioSrc, button) {
+            // Stop current audio if playing
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                
+                // Remove playing class from previously active button
+                if (activeButton) {
+                    activeButton.classList.remove('playing');
+                }
+            }
+
+            // Create new audio object
+            currentAudio = new Audio(audioSrc);
+            currentAudio.volume = isMuted ? 0 : volume;
+            
+            // Add playing class to current button
+            button.classList.add('playing');
+            activeButton = button;
+            
+            // Play the audio
+            currentAudio.play();
+            
+            // Remove playing class when audio ends
+            currentAudio.addEventListener('ended', () => {
+                button.classList.remove('playing');
+                activeButton = null;
+            });
+            
+            // Also remove playing class if audio is paused
+            currentAudio.addEventListener('pause', () => {
+                button.classList.remove('playing');
+            });
+        }
+
+        // Update volume function
+        function updateVolume() {
+            volume = volumeSlider.value / 100;
+            volumeValue.textContent = `${volumeSlider.value}%`;
+            
+            // Update current audio volume if playing
+            if (currentAudio) {
+                currentAudio.volume = isMuted ? 0 : volume;
+            }
+            
+            // Visual feedback for volume change
+            volumeValue.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                volumeValue.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // Toggle mute function
+        function toggleMute() {
+            isMuted = !isMuted;
+            
+            // Update mute button appearance and text
+            if (isMuted) {
+                muteBtn.classList.add('active');
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i><span>Unmute Sounds</span>';
+                volumeValue.textContent = "Muted";
+            } else {
+                muteBtn.classList.remove('active');
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i><span>Mute All Sounds</span>';
+                volumeValue.textContent = `${volumeSlider.value}%`;
+            }
+            
+            // Update current audio volume
+            if (currentAudio) {
+                currentAudio.volume = isMuted ? 0 : volume;
+            }
+            
+            // Visual feedback
+            muteBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                muteBtn.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // Create ripple effect on button click
+        function createRipple(e) {
+            const btn = e.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+            const radius = diameter / 2;
+            
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - btn.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${e.clientY - btn.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+            
+            // Remove existing ripples
+            const ripple = btn.getElementsByClassName('ripple')[0];
+            if (ripple) {
+                ripple.remove();
+            }
+            
+            btn.appendChild(circle);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initSoundboard);
+
+        // Add some dynamic visual effects
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            document.body.style.background = `
+                linear-gradient(
+                    135deg, 
+                    rgba(12, 36, 97, 0.9) ${x * 20}%, 
+                    rgba(30, 55, 153, 0.9) ${50 + y * 20}%, 
+                    rgba(74, 105, 189, 0.9) 100%
+                )
+            `;
+        });
+    </script>
+</body>
+</html>
